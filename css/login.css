@@ -1,0 +1,114 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.google-container {
+    padding: 30px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.titulo-google {
+    margin-bottom: 40px;
+    line-height: 30px;
+}
+
+.subtitulo {
+    color: #757373;
+}
+
+.button-google {
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.button-google button {
+    padding: 7px 90px;
+    border-radius: 10px;
+    border: solid 0.1px #b9b8b8;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+}
+
+.button-google button:hover {
+    background-color: #f8f8f8;
+    cursor: pointer;
+}
+
+.termos p {
+    color: #5c5a5a;
+
+}
+
+span {
+    color: #2DD4BF;
+    cursor: pointer;
+}
+
+svg {
+    color: #2DD4BF;
+}
+
+.footer {
+    margin-top: 20px;
+    color: #757373;
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0 30px;
+    }
+
+    .titulo-google {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        line-height: 30px;
+    }
+
+    .titulo-google h2 {
+        font-size: 22px;
+    }
+
+    .titulo-google p {
+        font-size: 15px;
+    }
+
+    .google-container {
+        padding: 15px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .button-google {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .footer {
+        font-size: 0.8rem;
+        padding: 10px;
+    }
+}
