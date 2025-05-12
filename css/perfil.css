@@ -1,0 +1,328 @@
+.perfil-container-infos {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-infos {
+    color: white;
+    width: 5rem;
+    height: 4.98rem;
+    background: #5eccf7;
+    background: linear-gradient(90deg, rgba(94, 204, 247, 1) 0%, rgba(91, 207, 139, 1) 14%, rgba(211, 219, 93, 1) 83%, rgba(237, 221, 83, 1) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.perfil-titulos p {
+    color: #757373;
+    font-size: 0.9rem
+}
+
+.usuario-info {
+    margin-left: 6rem;
+    display: flex;
+    gap: 3rem;
+}
+
+.usuario-info .stricks-perfil {
+    display: flex;
+    align-items: center;
+}
+
+.logo-strick-perfil {
+    margin-right: 5px;
+}
+
+.stricks-perfil {
+    padding: 3px;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.stricks-sub p {
+    color: #757373;
+    font-size: 0.7rem
+}
+
+.stricks-sub h4 {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.container-perfil {
+    margin-top: 28px;
+    display: flex;
+    gap: 1rem;
+}
+
+.estatisticas {
+    padding: 15px;
+    width: 350px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid #eaeaea;
+    background-color: white;
+    font-family: Arial, sans-serif;
+}
+
+.titulo-perfis h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.titulo-perfis p {
+    margin: 2px 0 15px;
+    font-size: 13px;
+    color: #555;
+}
+
+.estatisticas-todos {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+
+    font-size: 14px;
+}
+
+.estatisticas-todos:first-of-type {
+    border-top: none;
+}
+
+.subtitulo {
+    color: #333;
+}
+
+.numero-estatistica {
+    font-weight: bold;
+    color: #222;
+}
+
+.conquistas {
+    width: 550px;
+    padding: 15px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgb(234, 234, 234);
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.titulo-perfis h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.titulo-perfis p {
+    margin: 2px 0 15px;
+    font-size: 13px;
+    color: #555;
+}
+
+.conquistas-itens {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    line-height: 22px;
+}
+
+
+.conquista {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-itens {
+    width: 36px;
+    height: 36px;
+    background-color: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item h4 {
+    margin: 0;
+    font-size: 14px;
+    color: #1a1a1a;
+}
+
+.item p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: #555;
+}
+
+.progresso-topicos {
+    margin-top: 30px;
+    display: flex;
+}
+
+.progresso-topicos {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    background-color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.titulo-progresso h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+.titulo-progresso p {
+    margin: 2px 0 15px;
+    font-size: 13px;
+    color: #555;
+}
+
+.minicontainer-topicos {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.minicontainer-topicos > div {
+    flex: 1;
+    min-width: 435px;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #e4e4e7;
+    background-color: #fafafa;
+}
+
+.minicontainer-topicos h4 {
+    margin: 0 0 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+.minicontainer-topicos p {
+    margin: 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.completos span {
+    color: #14b8a6; 
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.em-progresso span {
+    color: #f59e0b; 
+    font-weight: bold;
+    font-size: 18px;
+}
+
+
+
+
+@media (max-width: 768px) {
+    .perfil-container-infos {
+      text-align: center;
+      justify-content: center;
+      flex-direction: column;
+      margin-bottom: 10px;
+    }
+  
+    .usuario-info {
+      justify-content: center;
+      margin-left: 0;
+      gap: 1rem;
+    }
+  
+    .container-perfil {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .estatisticas,
+    .conquistas {
+      width: 100%;
+    }
+  
+    .progresso-topicos {
+      flex-direction: column;
+      padding: 10px;
+    }
+  
+    .minicontainer-topicos > div {
+      min-width: 100%;
+    }
+  
+    .logo-infos {
+      width: 4rem;
+      height: 4rem;
+      font-size: 1.2rem;
+    }
+  
+    .stricks-sub h4 {
+      font-size: 0.85rem;
+    }
+  
+    .stricks-sub p {
+      font-size: 0.65rem;
+    }
+  
+    .titulo-perfis h4 {
+      font-size: 1rem;
+    }
+  
+    .titulo-perfis p {
+      font-size: 12px;
+    }
+  
+    .item h4 {
+      font-size: 13px;
+    }
+  
+    .item p {
+      font-size: 11px;
+    }
+  
+    .titulo-progresso h3 {
+      font-size: 15px;
+    }
+  
+    .titulo-progresso p {
+      font-size: 12px;
+    }
+  
+    .completos span,
+    .em-progresso span {
+      font-size: 16px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .logo-infos {
+      width: 3.5rem;
+      height: 3.5rem;
+      font-size: 1rem;
+    }
+  
+    .minicontainer-topicos > div {
+      padding: 10px;
+    }
+  }
+  
+
+
+
+

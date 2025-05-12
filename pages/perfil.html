@@ -7,18 +7,16 @@
     <title>Perfil - DebateIQ</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" type="image/png" href="/assets/ideia-criativa.ico">
+    <link rel="stylesheet" href="/css/perfil.css">
 </head>
 
 <body>
     <header>
-         <a href="/index.html" class="logo-voltar">
+        <a href="/index.html" class="logo-voltar">
             <div class="logo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-lightbulb h-8 w-8 text-debate-teal" data-lov-id="src/pages/Login.tsx:42:12"
-                    data-lov-name="LightbulbIcon" data-component-path="src/pages/Login.tsx" data-component-line="42"
-                    data-component-file="Login.tsx" data-component-name="LightbulbIcon"
-                    data-component-content="%7B%22className%22%3A%22h-8%20w-8%20text-debate-teal%22%7D">
+                    class="lucide lucide-lightbulb h-8 w-8 text-debate-teal">
                     <path
                         d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5">
                     </path>
@@ -28,30 +26,130 @@
                 <h2>Debate<span>IQ</span></h2>
             </div>
         </a>
-        </div>
         <a href="/pages/perfil.html" class="perfil">
-            <div class="logo-perfil">
-                <img src="" alt="">
-            </div>
             <div class="perfil-info">
                 <div class="logo-perfil-info">DE</div>
                 <div class="infos">
                     <h2>Debatedor Exemplar</h2>
-                    <p>Nivel 1 - Debatedor</p>
+                    <p>Nível 1 - Debatedor</p>
                 </div>
             </div>
         </a>
     </header>
+
     <div class="container">
         <main>
             <section class="perfil-container-infos">
-                <div class="logo-infos"></div>
+                <div class="logo-infos">DE</div>
                 <div class="perfil-titulos">
                     <h2>Debatedor Exemplar</h2>
                     <p>Membro desde Janeiro 2023</p>
                 </div>
             </section>
-            <section class="usuario-info"></section>
+
+            <section class="usuario-info">
+                <div class="stricks-perfil">
+                    <div class="logo-strick-perfil">🏆</div>
+                    <div class="stricks-sub">
+                        <p>Sequência</p>
+                        <h4>3 Dias</h4>
+                    </div>
+                </div>
+                <div class="stricks-perfil">
+                    <div class="logo-strick-perfil">⭐</div>
+                    <div class="stricks-sub">
+                        <p>Pontos</p>
+                        <h4>750 XP</h4>
+                    </div>
+                </div>
+                <div class="stricks-perfil">
+                    <div class="logo-strick-perfil">📶</div>
+                    <div class="stricks-sub">
+                        <p>Nível</p>
+                        <h4>3</h4>
+                    </div>
+                </div>
+            </section>
+
+            <section class="container-perfil">
+                <section class="estatisticas">
+                    <div class="titulo-perfis">
+                        <h4>Estatísticas</h4>
+                        <p>Seu desempenho em debates</p>
+                    </div>
+                    <div class="estatisticas-todos">
+                        <div class="subtitulo">Debates Vencidos</div>
+                        <div class="numero-estatistica">8</div>
+                    </div>
+                    <div class="estatisticas-todos">
+                        <div class="subtitulo">Debates Perdidos</div>
+                        <div class="numero-estatistica">3</div>
+                    </div>
+                    <div class="estatisticas-todos">
+                        <div class="subtitulo">Debates Empatados</div>
+                        <div class="numero-estatistica">2</div>
+                    </div>
+                    <div class="estatisticas-todos">
+                        <div class="subtitulo">Categoria Principal</div>
+                        <div class="numero-estatistica destaque">Tecnologia</div>
+                    </div>
+                    <div class="estatisticas-todos">
+                        <div class="subtitulo">Pontuação Média</div>
+                        <div class="numero-estatistica destaque">82%</div>
+                    </div>
+                </section>
+                
+
+                <section class="conquistas">
+                    <div class="titulo-perfis">
+                        <h4>Conquistas</h4>
+                        <p>Conquistas que você desbloqueou</p>
+                    </div>
+
+                    <div class="conquistas-itens">
+                        <div class="conquista">
+                            <div class="logo-itens"></div>
+                            <div class="item">
+                                <h4>Primeiro Debate</h4>
+                                <p>15 Jan 2023</p>
+                            </div>
+                        </div>
+                        <div class="conquista">
+                            <div class="logo-itens"></div>
+                            <div class="item">
+                                <h4>Streak Semanal</h4>
+                                <p>28 Fev 2023</p>
+                            </div>
+                        </div>
+                        <div class="conquista">
+                            <div class="logo-itens"></div>
+                            <div class="item">
+                                <h4>Argumentador Habilidoso</h4>
+                                <p>17 Mar 2023</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="progresso-topicos">
+                <div class="container-progresso">
+                <div class="titulo-progresso">
+                    <h3>Progresso de Tópicos</h3>
+                    <p>Seu avanço nos tópicos de debate</p>
+                </div>
+                <div class="minicontainer-topicos">
+                    <div class="completos">
+                        <h4>Tópicos Completos</h4>
+                        <p><span>14</span> tópicos</p>
+                    </div>
+                    <div class="em-progresso">
+                        <h4>Tópicos em progresso</h4>
+                        <p><span>2</span> tópicos</p>
+                    </div>
+                </div>
+            </div>
+            </section>
         </main>
     </div>
 </body>
