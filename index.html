@@ -126,7 +126,8 @@
                     </div>
                 </div>
                 <div class="botoes">
-                    <button class="btn-iniciar">Começar Desafio</button>
+                    <button class="btn-iniciar" onclick="window.location.href='/pages/argumento.html'">Começar
+                        Desafio</button>
                     <button class="btn-ver">👥 Ver Argumentos</button>
                 </div>
             </section>
@@ -191,6 +192,56 @@
             </section>
         </main>
     </div>
+
+    <div class="container-modal ">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <h3>🗣️ Argumentos da Comunidade</h3>
+                <button onclick="fecharModal()">✖</button>
+            </div>
+            <div class="modal-conteudo-container">
+                <div class="modal-tema-diario">
+                    <p>Globalização e Culturas Locais</p>
+                </div>
+                <div class="modal-argumentos-lista">
+                    <div class="argumentos-container">
+                        <div class="argumentos-caixa">
+                            <h4>Ana Clara</h4>
+                            <p>A globalização permite o compartilhamento de culturas e ideias, o que enriquece as
+                                tradições locais ao invés de destruí-las. Exemplos como festivais culturais
+                                internacionais mostram como a troca global pode fortalecer o interesse em costumes
+                                locais.</p>
+                        </div>
+                        <div class="argumentos-caixa">
+                            <h4>Luciana Santos</h4>
+                            <p>A globalização é um processo de mão dupla. Enquanto produtos globais entram em mercados
+                                locais, culturas locais também ganham visibilidade global. O streaming, por exemplo,
+                                popularizou conteúdos não-americanos em todo o mundo, como produções coreanas e
+                                brasileiras.</p>
+                        </div>
+                        <div class="argumentos-caixa">
+                            <h4>Pedro Almeida</h4>
+                            <p>Embora a globalização traga benefícios econômicos, ela frequentemente homogeneiza
+                                culturas. Observamos isso na substituição de lojas locais por grandes redes
+                                internacionais e na diminuição de línguas minoritárias. A preservação cultural exige
+                                esforço consciente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirModal() {
+    document.querySelector('.container-modal').classList.add('visivel');
+}
+
+function fecharModal() {
+    document.querySelector('.container-modal').classList.remove('visivel');
+}
+
+    </script>
 
 </body>
 
