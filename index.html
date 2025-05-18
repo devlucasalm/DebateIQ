@@ -7,17 +7,15 @@
     <title>DebateIQ</title>
     <link rel="icon" type="image/png" href="/assets/ideia-criativa.ico">
     <link rel="stylesheet" href="/css/style.css">
+</head>
 
+<body>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-
-</head>
-
-<body>
 
     <header>
         <a href="/index.html" class="logo-voltar">
@@ -86,13 +84,13 @@
                 </div>
 
                 <div class="dias">
-                    <div class="dia ativo"><span>1</span>
+                    <div class="dia inativo"><span>1</span>
                         <p>SEX</p>
                     </div>
-                    <div class="dia ativo"><span>2</span>
+                    <div class="dia inativo"><span>2</span>
                         <p>SAB</p>
                     </div>
-                    <div class="dia ativo"><span>3</span>
+                    <div class="dia inativo"><span>3</span>
                         <p>DOM</p>
                     </div>
                     <div class="dia inativo"><span>4</span>
@@ -128,7 +126,7 @@
                 <div class="botoes">
                     <button class="btn-iniciar" onclick="window.location.href='/pages/argumento.html'">Começar
                         Desafio</button>
-                    <button class="btn-ver">👥 Ver Argumentos</button>
+                    <button class="btn-ver" onclick="abrirModal()">👥 Ver Argumentos</button>
                 </div>
             </section>
 
@@ -232,16 +230,20 @@
         </div>
     </div>
 
+  
+    <script type="module" src="/js/index.js"></script>
+
     <script>
         function abrirModal() {
-    document.querySelector('.container-modal').classList.add('visivel');
-}
+            document.querySelector('.container-modal').classList.add('active');
+        }
 
-function fecharModal() {
-    document.querySelector('.container-modal').classList.remove('visivel');
-}
+        function fecharModal() {
+            document.querySelector('.container-modal').classList.remove('active');
+        }
 
     </script>
+
 
 </body>
 

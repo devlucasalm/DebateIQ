@@ -1,12 +1,13 @@
 // firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
+import {
+  getAuth,
+  GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged 
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-import { 
+
+import {
   getFirestore,
   doc,
   setDoc,
@@ -37,9 +38,13 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-export { 
-  auth, 
-  provider, 
+provider.setCustomParameters({
+  prompt: 'select_account'
+});
+
+export {
+  auth,
+  provider,
   signInWithPopup,
   onAuthStateChanged,
   db,

@@ -1,3 +1,13 @@
+.voltar {
+    margin-left: 0.5rem;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.voltar:hover {
+    color: #2bd4c0;
+}
+
 .posicao-favor-contra {
     margin-bottom: 1rem;
 }
@@ -11,5 +21,54 @@
     padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
+    border: 0.1px rgb(209, 209, 209) solid;
+    font-weight: bold;
+    box-shadow: rgba(0, 0, 0, 0.04) 0px 3px 5px;
+    font-weight: 500;
 }
-    
+
+.sub-argumento p,
+.descricao,
+.escolha-subtitulo {
+    color: #313030;
+}
+
+.sub-argumento {
+    margin-bottom: 10px;
+}
+
+.btn-favor:hover {
+    background-color: #41d360;
+}
+
+.btn-contra:hover {
+    background-color: #ff4659;
+}
+
+.caixa-argumento {
+    width: 100%;
+}
+
+.caixa-argumento textarea {
+    width: 100%;
+    height: 150px;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.caixa-argumento #contador {
+    text-align: end;
+    color: #5c5a5a;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.btn-argumento {
+    font-size: 0.9rem;
+    padding: 8px;
+}
