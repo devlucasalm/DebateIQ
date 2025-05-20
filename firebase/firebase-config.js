@@ -19,6 +19,7 @@ import {
   getDocs,
   orderBy,
   limit,
+  addDoc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
@@ -58,5 +59,6 @@ export {
   getDocs,
   orderBy,
   limit,
+  addDoc,
   updateDoc
 };

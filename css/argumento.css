@@ -37,12 +37,18 @@
     margin-bottom: 10px;
 }
 
-.btn-favor:hover {
-    background-color: #41d360;
+.btn-favor:hover,
+.btn-favor.ativo {
+    background-color: #218838;
+    color: white;
+    border-color: #218838;
 }
 
-.btn-contra:hover {
-    background-color: #ff4659;
+.btn-contra:hover,
+.btn-contra.ativo {
+    background-color: #c82333;
+    color: white;
+    border-color: #c82333;
 }
 
 .caixa-argumento {
