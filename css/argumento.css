@@ -1,3 +1,7 @@
+*{
+    box-sizing: border-box;
+}
+
 .voltar {
     margin-left: 0.5rem;
     margin-bottom: 15px;
@@ -101,33 +105,33 @@ button#abrirModal:hover {
 }
 
 .modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background-color: rgba(0, 0, 0, 0.5);
-display: none;
-justify-content: center;
-align-items: center;
-z-index: 1000;
-overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    overflow: hidden;
 }
 
 .modal-conteudo {
-background-color: white;
-border-radius: 1rem;
-max-width: 500px;
-width: 90%;
-padding: 1.5rem;
-position: relative;
-max-height: 100vh;
-overflow: visible;
-box-sizing: border-box;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-gap: 1rem;
+    background-color: white;
+    border-radius: 1rem;
+    max-width: 500px;
+    width: 90%;
+    padding: 1.2rem;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .modal-conteudo h2 {
@@ -255,6 +259,18 @@ gap: 1rem;
     font-size: 0.875rem;
     animation: slideUp 0.3s ease;
 }
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 
 @media (max-width: 600px) {
     body {
