@@ -42,7 +42,7 @@ async function handleGoogleLogin(e) {
       await handleUserData(user);
       
       // Use location.replace para melhor navegação (não adiciona à história)
-      window.location.replace("index.html");
+      window.location.replace("home.html");
     } else {
       throw new Error("Autenticação falhou - usuário não retornado");
     }
