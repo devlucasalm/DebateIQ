@@ -216,6 +216,22 @@ async function updateStreak(userId) {
   }
 }
 
+function gerarSequenciaDias() {
+  const diasSemana = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
+  const hoje = new Date();
+  const diaAtual = hoje.getDay(); // 0 (DOM) a 6 (SAB)
+
+  // Gera a sequência a partir do dia atual
+  const sequencia = [];
+  for (let i = 0; i < 7; i++) {
+    const index = (diaAtual + i) % 7;
+    sequencia.push(diasSemana[index]);
+  }
+
+  return sequencia;
+}
+
+
 // Atualiza a UI da streak
 function updateStreakUI(streak) {
   try {
@@ -223,9 +239,19 @@ function updateStreakUI(streak) {
     if (streakElement) {
       streakElement.textContent = `Sequência de ${streak} dias`;
     }
-    
+
+    const sequenciaDias = gerarSequenciaDias();
     const days = document.querySelectorAll('.dia');
+
     days.forEach((day, index) => {
+      const span = day.querySelector('span');
+      const p = day.querySelector('p');
+
+      // Atualiza o número e o nome do dia
+      if (span) span.textContent = index + 1;
+      if (p) p.textContent = sequenciaDias[index];
+
+      // Aplica estilo ativo/inativo com base no streak
       if (index < streak) {
         day.classList.add('ativo');
         day.classList.remove('inativo');
@@ -238,6 +264,7 @@ function updateStreakUI(streak) {
     console.error("Erro ao atualizar UI da streak:", error);
   }
 }
+
 
 // Funções auxiliares
 function getInitials(name) {
