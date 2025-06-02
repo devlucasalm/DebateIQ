@@ -219,7 +219,7 @@ async function updateStreak(userId) {
 function gerarSequenciaDias() {
   const diasSemana = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
   const hoje = new Date();
-  const diaAtual = hoje.getDay(); // 0 (DOM) a 6 (SAB)
+  const diaAtual = hoje.getDay(); 
 
   // Gera a sequência a partir do dia atual
   const sequencia = [];
