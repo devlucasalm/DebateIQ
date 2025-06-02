@@ -7,6 +7,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
 
+
 import {
   getFirestore,
   doc,
@@ -23,6 +24,9 @@ import {
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-functions.js";
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyC3Z__o1Uiv-OIuFw8lOF1wPlAyY9K3e5I",
   authDomain: "debateiq-login.firebaseapp.com",
@@ -38,6 +42,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
+const functions = getFunctions(app); 
 
 provider.setCustomParameters({
   prompt: 'select_account'
@@ -60,5 +65,7 @@ export {
   orderBy,
   limit,
   addDoc,
+  functions,
+  httpsCallable,
   updateDoc
 };

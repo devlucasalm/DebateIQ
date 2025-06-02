@@ -72,52 +72,70 @@
                     </div>
                 </div>
                 <div class="botoes">
-                    <button class="btn-iniciar btn-argumento" id="enviarArgumento" onclick="abrirModal()">Enviar Argumento</button>
+                    <button class="btn-iniciar btn-argumento" id="enviarArgumento">Enviar Argumento</button>
                 </div>
             </section>
         </main>
     </div>
 
     <div class="modal">
-        <div class="modal-conteudo">
-            <h2>Feedback da IA sobre seu argumento</h2>
-            <p class="subtext">Confira a análise da sua argumentação e sugestões para aprimorá-la.</p>
-            <div class="score-section">
-                <span class="score-label">Pontuação</span>
-                <div class="score-bar"></div>
-                <span class="score-value">7.5/10</span>
+    <div class="modal-conteudo">
+        <h2>Feedback da IA sobre seu argumento</h2>
+        <p class="subtext">Confira a análise da sua argumentação e sugestões para aprimorá-la.</p>
+
+        <section id="geminiDynamicContent">
+            <div id="loadingMessage" style="display: none;">
+                <p>Analisando seu argumento com a inteligência artificial...</p>
+                <div class="spinner"></div> </div>
+
+            <div id="errorMessage" style="display: none; color: red; margin-top: 10px;">
+                <p>Ocorreu um erro ao analisar seu argumento. Por favor, tente novamente.</p>
             </div>
 
-            <div class="section">
-                <h3><span class="dot dot-green"></span> Pontos fortes</h3>
-                <ul>
-                    <li>Boa estrutura argumentativa com introdução clara e desenvolvimento lógico.</li>
-                    <li>Uso eficaz de evidências para sustentar o ponto principal.</li>
-                    <li>Linguagem persuasiva e adequada ao contexto do debate.</li>
-                </ul>
-            </div>
+            <div id="resultsContent" style="display: none;">
+                <div class="score-section">
+                    <span class="score-label">Pontuação</span>
+                    <div class="score-bar"></div>
+                    <span class="score-value" id="resultadoPontuacao">--/10</span> </div>
 
-            <div class="section">
-                <h3><span class="dot dot-yellow"></span> Sugestões de melhoria</h3>
-                <ul>
-                    <li>Considere abordar pontos de vista contrários para fortalecer seu argumento.</li>
-                    <li>Adicione mais exemplos específicos para ilustrar seus pontos.</li>
-                    <li>Conclua com uma síntese mais impactante dos seus argumentos.</li>
-                </ul>
-            </div>
+                <div class="section">
+                    <h3><span class="dot dot-green"></span> Pontos fortes</h3>
+                    <ul id="listaPontosFortes"> </ul>
+                </div>
 
-            <div class="section">
-                <h3><span class="dot dot-gray"></span> Pontos adicionais a considerar</h3>
-                <ul>
-                    <li>Este tópico tem implicações econômicas que poderiam ser exploradas.</li>
-                    <li>Pesquisas recentes sobre o tema mostram tendências que poderiam enriquecer sua argumentação.
-                    </li>
-                </ul>
-            </div>
+                <div class="section">
+                    <h3><span class="dot dot-yellow"></span> Sugestões de melhoria</h3>
+                    <ul id="listaPontosMelhorar"> </ul>
+                </div>
 
-            <button class="button">Continuar</button>
-        </div>
-    </div>
+                <div class="section">
+                    <h3><span class="dot dot-gray"></span> Pontos adicionais a considerar</h3>
+                    <ul id="listaPontosFracos"> </ul>
+                </div>
+
+                 <p>XP Ganhos: <span id="resultadoXP">0</span></p>
+
+            </div>
+        </section>
+        <button class="button" id="btnContinuarModal">Continuar</button> </div>
+</div>
+
+<style>
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #22a7f0; /* Cor primária */
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
 
     <div class="toast-container" id="toast-container">
         <div class="toast" id="toast">
@@ -127,57 +145,6 @@
     </div>
 
 
-
-    <script>
-        const btnFavor = document.getElementById('btnFavor');
-        const btnContra = document.getElementById('btnContra');
-        const buttons = [btnFavor, btnContra];
-
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                buttons.forEach(b => b.classList.remove('ativo'));
-                btn.classList.add('ativo');
-            });
-        });
-
-        const textarea = document.getElementById('campoArgumento');
-        const contador = document.getElementById('contador');
-
-        textarea.addEventListener('input', () => {
-            const length = textarea.value.length;
-            contador.textContent = `${length} caracteres (mínimo 50)`;
-        });
-
-    </script>
-
-    <script>
-        const modal = document.querySelector('.modal');
-        const btnContinuar = document.querySelector('.modal .button');
-        const toastContainer = document.getElementById('toast-container');
-
-        function abrirModal() {
-            modal.style.display = 'flex';
-        }
-
-        btnContinuar.addEventListener('click', () => {
-            modal.style.display = 'none';
-            toastContainer.style.display = 'flex';
-
-            setTimeout(() => {
-                toastContainer.style.display = 'none';
-            }, 4000);
-        });
-
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
-    </script>
-
-
-
-    <script type="module" src="/js/api_implementacao.js"></script>
     <script type="module" src="/js/argumento.js"></script>
 </body>
 

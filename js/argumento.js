@@ -1,3 +1,6 @@
+// /js/argumento.js
+
+// Imports do Firebase
 import {
     auth,
     db,
@@ -12,31 +15,206 @@ import {
     updateDoc,
     addDoc,
     serverTimestamp,
+    functions, // <--- Esta é a instância de 'functions' já inicializada do firebase-config.js
+    httpsCallable, // <--- Esta é a função para chamar as Cloud Functions do firebase-config.js
     onAuthStateChanged
 } from '../firebase/firebase-config.js';
 
-let userId = null;  // declara aqui para usar em todo o arquivo
+let userId = null; // Declarado aqui para ser acessível globalmente no módulo
 
+// Único listener para DOMContentLoaded - garante que o DOM está completamente carregado
 document.addEventListener('DOMContentLoaded', () => {
-    // Usa onAuthStateChanged para pegar o usuário atual
+
+    // --- 1. CONFIGURAÇÃO DE AUTENTICAÇÃO E CARREGAMENTO DE DADOS ---
+    // Monitora o estado de autenticação do usuário
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             console.log("Usuário não autenticado, redirecionando para login");
-            window.location.href = 'login.html';
+            window.location.href = 'login.html'; // Redireciona se o usuário não estiver logado
             return;
         }
 
-        userId = user.uid;  // atribui o userId aqui dentro, onde user existe
+        userId = user.uid; // Atribui o ID do usuário logado
 
         try {
+            // Carrega os dados do usuário e o desafio diário após autenticação
             await loadUserData(user);
             await loadDailyChallenge();
         } catch (error) {
-            console.error("Erro ao carregar dados da dashboard:", error);
+            console.error("Erro ao carregar dados da dashboard em argumento.html:", error);
         }
     });
-});
 
+    // --- 2. REFERÊNCIAS DOS ELEMENTOS DO DOM ---
+    // Obtém referências a todos os elementos HTML necessários usando seus IDs
+    const btnFavor = document.getElementById('btnFavor');
+    const btnContra = document.getElementById('btnContra');
+    const buttons = [btnFavor, btnContra]; // Array para facilitar a manipulação dos botões de posição
+
+    const textarea = document.getElementById('campoArgumento');
+    const contador = document.getElementById('contador');
+    const botaoEnviar = document.getElementById('enviarArgumento');
+
+    // Referências para o modal de feedback e seus elementos internos
+    const modal = document.querySelector('.modal'); // O modal principal que você já tem
+    const btnContinuar = document.getElementById('btnContinuarModal'); // O botão "Continuar" dentro do modal
+    const toastContainer = document.getElementById('toast-container'); // Se você ainda estiver usando um toast
+
+    // Elementos dentro do modal para exibir o feedback do Gemini
+    // geminiDynamicContent engloba loading, error e resultsContent
+    const geminiDynamicContent = document.getElementById('geminiDynamicContent');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const resultsContent = document.getElementById('resultsContent'); // O contêiner para os resultados reais (pontuação, listas)
+
+    const resultadoPontuacao = document.getElementById('resultadoPontuacao');
+    const resultadoXP = document.getElementById('resultadoXP');
+    const listaPontosFortes = document.getElementById('listaPontosFortes');
+    const listaPontosFracos = document.getElementById('listaPontosFracos'); // Usado para 'Pontos adicionais a considerar'
+    const listaPontosMelhorar = document.getElementById('listaPontosMelhorar'); // Usado para 'Sugestões de melhoria'
+
+    // Inicializa a callable function do Firebase Functions
+    // 'functions' e 'httpsCallable' já vêm importados e inicializados de firebase-config.js
+    const analyzeArgumentsCallable = httpsCallable(functions, 'analyzeArguments');
+
+    // --- 3. LISTENERS DE EVENTOS ---
+
+    // Listener para os botões "A Favor" e "Contra"
+    if (btnFavor && btnContra) {
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                buttons.forEach(b => b.classList.remove('ativo')); // Remove a classe 'ativo' de todos
+                btn.classList.add('ativo'); // Adiciona a classe 'ativo' ao botão clicado
+            });
+        });
+    }
+
+    // Listener para o contador de caracteres do textarea
+    if (textarea && contador) {
+        textarea.addEventListener('input', () => {
+            const length = textarea.value.length;
+            contador.textContent = `${length} caracteres (mínimo 50)`;
+        });
+    }
+
+    // Listener para o botão "Enviar Argumento" - principal lógica de submissão e análise
+    if (botaoEnviar) {
+        botaoEnviar.addEventListener('click', async () => {
+            // Verifica se o usuário está autenticado
+            if (!userId) {
+                alert('Usuário não autenticado. Por favor, faça login novamente.');
+                return;
+            }
+
+            const texto = textarea.value.trim();
+
+            // Validação mínima do argumento
+            if (texto.length < 50) {
+                alert('Seu argumento deve conter pelo menos 50 caracteres.');
+                return;
+            }
+
+            // ABRIR O MODAL E PREPARAR PARA CARREGAMENTO
+            if (modal) modal.style.display = 'flex'; // Abre o modal
+
+            // Mostra a seção de conteúdo dinâmico do Gemini dentro do modal
+            if (geminiDynamicContent) geminiDynamicContent.style.display = 'block';
+            // Exibe a mensagem de carregamento e esconde as outras seções
+            if (loadingMessage) loadingMessage.style.display = 'block';
+            if (errorMessage) errorMessage.style.display = 'none';
+            if (resultsContent) resultsContent.style.display = 'none';
+
+            // Limpa os campos de resultado antes de uma nova análise
+            if (listaPontosFortes) listaPontosFortes.innerHTML = '';
+            if (listaPontosFracos) listaPontosFracos.innerHTML = '';
+            if (listaPontosMelhorar) listaPontosMelhorar.innerHTML = '';
+            if (resultadoPontuacao) resultadoPontuacao.textContent = '--/10';
+            if (resultadoXP) resultadoXP.textContent = '0';
+
+            try {
+                // 1. Salva o argumento no Firestore
+                await addDoc(collection(db, 'arguments'), {
+                    userId: userId,
+                    content: texto,
+                    createdAt: serverTimestamp(),
+                });
+                console.log('Argumento salvo no Firestore.');
+
+                // 2. Chama a Firebase Function para análise do Gemini
+                console.log('Chamando Firebase Function para análise do Gemini...');
+                const result = await analyzeArgumentsCallable({ argumentsText: texto });
+                const geminiAnalysis = result.data; // Os dados retornados pela sua função
+
+                console.log('Análise do Gemini recebida:', geminiAnalysis);
+
+                // Ocultar mensagem de carregamento e exibir os resultados
+                if (loadingMessage) loadingMessage.style.display = 'none';
+                if (resultsContent) resultsContent.style.display = 'block';
+
+                // Preenche os campos de pontuação e XP
+                if (resultadoPontuacao) resultadoPontuacao.textContent = `${geminiAnalysis.pontuacao || '--'}/10`;
+                if (resultadoXP) resultadoXP.textContent = geminiAnalysis.xp || '0';
+
+                // Função auxiliar para preencher as listas de feedback
+                const populateList = (ulElement, items) => {
+                    if (!ulElement) return; // Garante que o elemento existe antes de tentar manipulá-lo
+                    ulElement.innerHTML = ''; // Limpa a lista antes de adicionar itens
+                    items.forEach(item => {
+                        const li = document.createElement('li');
+                        li.textContent = item;
+                        ulElement.appendChild(li);
+                    });
+                };
+
+                // Preenche as listas com os dados da análise do Gemini
+                populateList(listaPontosFortes, geminiAnalysis.pontosFortes || []);
+                populateList(listaPontosMelhorar, geminiAnalysis.pontosMelhorar || []);
+                populateList(listaPontosFracos, geminiAnalysis.pontosFracos || []);
+
+                // Limpa o campo de texto e o contador após o envio bem-sucedido
+                textarea.value = '';
+                contador.textContent = '0 caracteres (mínimo 50)';
+
+            } catch (error) {
+                // Lidar com erros durante o processo de envio/análise
+                console.error('Erro no processo de envio/análise:', error);
+                if (loadingMessage) loadingMessage.style.display = 'none'; // Esconde o carregamento
+                if (errorMessage) {
+                    errorMessage.style.display = 'block'; // Mostra a mensagem de erro
+                    errorMessage.textContent = `Erro: ${error.message || 'Ocorreu um erro desconhecido.'} Por favor, tente novamente.`;
+                    if (error.details) { // Se houver detalhes adicionais do erro da função
+                        console.error("Detalhes do erro da função:", error.details);
+                        errorMessage.textContent += ` Detalhes: ${JSON.stringify(error.details)}`;
+                    }
+                }
+                if (resultsContent) resultsContent.style.display = 'none'; // Garante que os resultados não apareçam com erro
+            }
+        });
+    }
+
+    // Listener para o botão "Continuar" dentro do modal (fecha o modal)
+    if (btnContinuar) {
+        btnContinuar.addEventListener('click', () => {
+            if (modal) modal.style.display = 'none'; // Fecha o modal
+            // Você pode adicionar aqui qualquer outra lógica que desejar após o usuário fechar o modal
+            // Ex: mostrar um toast de sucesso, redirecionar, etc.
+        });
+    }
+
+    // Listener para fechar o modal clicando fora do conteúdo
+    if (modal) {
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) { // Verifica se o clique foi no fundo do modal (fora do conteúdo)
+                modal.style.display = 'none';
+            }
+        });
+    }
+
+}); // Fim do DOMContentLoaded
+
+// --- FUNÇÕES AUXILIARES (Podem ser movidas para outro arquivo e importadas, se necessário) ---
+
+// Carrega dados do usuário (nome, nível, foto de perfil)
 async function loadUserData(user) {
     try {
         const userRef = doc(db, 'users', user.uid);
@@ -78,9 +256,10 @@ async function loadUserData(user) {
     }
 }
 
+// Carrega o desafio diário
 async function loadDailyChallenge() {
     try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0]; // Obtém a data de hoje no formato YYYY-MM-DD
         const q = query(
             collection(db, 'dailyChallenges'),
             where('date', '==', today),
@@ -118,44 +297,16 @@ async function loadDailyChallenge() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const textarea = document.getElementById('campoArgumento');
-    const contador = document.getElementById('contador');
-    const botaoEnviar = document.getElementById('enviarArgumento');
+// Retorna as iniciais de um nome
+function getInitials(name) {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+}
 
-    textarea.addEventListener('input', () => {
-        const length = textarea.value.length;
-        contador.textContent = `${length} caracteres (mínimo 50)`;
-    });
-
-    botaoEnviar.addEventListener('click', async () => {
-        if (!userId) {
-            alert('Usuário não autenticado. Por favor, faça login novamente.');
-            return;
-        }
-
-        const texto = textarea.value.trim();
-
-        if (texto.length < 50) {
-            alert('Seu argumento deve conter pelo menos 50 caracteres.');
-            return;
-        }
-
-        try {
-            await addDoc(collection(db, 'arguments'), {
-                userId: userId,
-                content: texto,
-                createdAt: serverTimestamp(),
-            });
-
-            alert('Argumento enviado com sucesso!');
-            textarea.value = '';
-            contador.textContent = '0 caracteres (mínimo 50)';
-        } catch (error) {
-            console.error('Erro ao enviar argumento:', error);
-            alert('Erro ao enviar argumento. Tente novamente.');
-        }
-    });
-});
-
-
+// Retorna o título do rank com base no nível
+function getRankTitle(level) {
+    if (level < 5) return 'Novato';
+    if (level < 10) return 'Aprendiz';
+    if (level < 20) return 'Experiente'; // Adicionando mais ranks
+    if (level < 50) return 'Mestre';
+    return 'Lenda';
+}
