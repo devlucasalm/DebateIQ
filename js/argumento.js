@@ -1,6 +1,6 @@
 // /js/argumento.js
 
-// Imports do Firebase
+// Imports do Firebase (manter o que ainda usa)
 import {
     auth,
     db,
@@ -15,12 +15,13 @@ import {
     updateDoc,
     addDoc,
     serverTimestamp,
-    functions, // <--- Esta é a instância de 'functions' já inicializada do firebase-config.js
-    httpsCallable, // <--- Esta é a função para chamar as Cloud Functions do firebase-config.js
     onAuthStateChanged
 } from '../firebase/firebase-config.js';
 
 let userId = null; // Declarado aqui para ser acessível globalmente no módulo
+
+
+const NODE_SERVER_URL = 'http://localhost:3000'; 
 
 // Único listener para DOMContentLoaded - garante que o DOM está completamente carregado
 document.addEventListener('DOMContentLoaded', () => {
@@ -73,9 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const listaPontosFracos = document.getElementById('listaPontosFracos'); // Usado para 'Pontos adicionais a considerar'
     const listaPontosMelhorar = document.getElementById('listaPontosMelhorar'); // Usado para 'Sugestões de melhoria'
 
-    // Inicializa a callable function do Firebase Functions
-    // 'functions' e 'httpsCallable' já vêm importados e inicializados de firebase-config.js
-    const analyzeArgumentsCallable = httpsCallable(functions, 'analyzeArguments');
+    // REMOVIDO: Inicialização da callable function do Firebase Functions
+    // const analyzeArgumentsCallable = httpsCallable(functions, 'analyzeArguments');
 
     // --- 3. LISTENERS DE EVENTOS ---
 
@@ -140,10 +140,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 console.log('Argumento salvo no Firestore.');
 
-                // 2. Chama a Firebase Function para análise do Gemini
-                console.log('Chamando Firebase Function para análise do Gemini...');
-                const result = await analyzeArgumentsCallable({ argumentsText: texto });
-                const geminiAnalysis = result.data; // Os dados retornados pela sua função
+                // 2. Chama o seu servidor Node.js para análise do Gemini
+                console.log('Chamando servidor Node.js para análise do Gemini...');
+                const response = await fetch(`${NODE_SERVER_URL}/analyze-argument`, { // <<<<<< CHAMADA PARA O SERVIDOR NODE.JS AQUI
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${await auth.currentUser.getIdToken()}` // Envia o token de autenticação do Firebase para o backend (opcional, mas recomendado para segurança)
+                    },
+                    body: JSON.stringify({ argumentsText: texto })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
+                }
+
+                const geminiAnalysis = await response.json(); // Os dados retornados pelo seu servidor Node.js
 
                 console.log('Análise do Gemini recebida:', geminiAnalysis);
 
@@ -182,9 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (errorMessage) {
                     errorMessage.style.display = 'block'; // Mostra a mensagem de erro
                     errorMessage.textContent = `Erro: ${error.message || 'Ocorreu um erro desconhecido.'} Por favor, tente novamente.`;
-                    if (error.details) { // Se houver detalhes adicionais do erro da função
-                        console.error("Detalhes do erro da função:", error.details);
-                        errorMessage.textContent += ` Detalhes: ${JSON.stringify(error.details)}`;
+                    // Não há error.details diretamente da API fetch, mas pode vir do corpo da resposta de erro
+                    if (error.response && error.response.data) {
+                        console.error("Detalhes do erro do servidor:", error.response.data);
+                        errorMessage.textContent += ` Detalhes: ${JSON.stringify(error.response.data)}`;
                     }
                 }
                 if (resultsContent) resultsContent.style.display = 'none'; // Garante que os resultados não apareçam com erro
