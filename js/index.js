@@ -96,10 +96,16 @@ async function loadUserData(user) {
 // 2. Carrega desafio diário
 async function loadDailyChallenge() {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); 
+
+    const startOfNextDay = new Date(startOfDay);
+    startOfNextDay.setDate(startOfDay.getDate() + 1); 
+
     const q = query(
       collection(db, 'dailyChallenges'),
-      where('date', '==', today),
+      where('date', '>=', startOfDay),
+      where('date', '<', startOfNextDay),
       limit(1)
     );
 
@@ -122,19 +128,18 @@ async function loadDailyChallenge() {
         if (xpElement) xpElement.textContent = `+${challenge.xpReward || 50} XP`;
         if (timeElement) timeElement.textContent = `⏱️ ${challenge.time || 10} minutos`;
         
-        // Atualiza o link para incluir o ID do desafio
         if (startBtn) {
           startBtn.onclick = () => window.location.href = `/pages/argumento.html?challenge=${challengeDoc.id}`;
         }
       }
     } else {
       console.log("Nenhum desafio diário encontrado para hoje");
-      // Opcional: mostrar mensagem para usuário que não há desafio hoje
     }
   } catch (error) {
     console.error("Erro ao carregar desafio diário:", error);
   }
 }
+
 
 // 3. Carrega ranking semanal
 async function loadRanking() {

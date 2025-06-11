@@ -265,44 +265,51 @@ async function loadUserData(user) {
 
 // Carrega o desafio diário
 async function loadDailyChallenge() {
-    try {
-        const today = new Date().toISOString().split('T')[0]; 
-        const q = query(
-            collection(db, 'dailyChallenges'),
-            where('date', '==', today),
-            limit(1)
-        );
+  try {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0); // 00:00:00 de hoje
 
-        const querySnapshot = await getDocs(q);
+    const startOfNextDay = new Date(startOfDay);
+    startOfNextDay.setDate(startOfDay.getDate() + 1); // 00:00:00 de amanhã
 
-        if (!querySnapshot.empty) {
-            const challengeDoc = querySnapshot.docs[0];
-            const challenge = challengeDoc.data();
-            const challengeSection = document.querySelector('.desafio-diario');
+    const q = query(
+      collection(db, 'dailyChallenges'),
+      where('date', '>=', startOfDay),
+      where('date', '<', startOfNextDay),
+      limit(1)
+    );
 
-            if (challengeSection) {
-                const titleElement = challengeSection.querySelector('h2');
-                const descriptionElement = challengeSection.querySelector('.descricao');
-                const xpElement = challengeSection.querySelector('.xp');
-                const timeElement = challengeSection.querySelector('.tempo');
-                const startBtn = challengeSection.querySelector('.btn-iniciar');
-
-                if (titleElement) titleElement.textContent = challenge.title || 'Desafio Diário';
-                if (descriptionElement) descriptionElement.textContent = challenge.description || 'Participe do desafio de hoje!';
-                if (xpElement) xpElement.textContent = `${challenge.xpReward || 50} XP`;
-                if (timeElement) timeElement.textContent = `⏱️ ${challenge.time || 10} minutos`;
-
-                if (startBtn) {
-                    startBtn.onclick = () => window.location.href = `/pages/argumento.html?challenge=${challengeDoc.id}`;
-                }
-            }
-        } else {
-            console.log("Nenhum desafio diário encontrado para hoje");
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const challengeDoc = querySnapshot.docs[0];
+      const challenge = challengeDoc.data();
+      const challengeSection = document.querySelector('.desafio-diario');
+      
+      if (challengeSection) {
+        const titleElement = challengeSection.querySelector('h2');
+        const descriptionElement = challengeSection.querySelector('.descricao');
+        const xpElement = challengeSection.querySelector('.xp');
+        const timeElement = challengeSection.querySelector('.tempo');
+        const startBtn = challengeSection.querySelector('.btn-iniciar');
+        
+        if (titleElement) titleElement.textContent = challenge.title || 'Desafio Diário';
+        if (descriptionElement) descriptionElement.textContent = challenge.description || 'Participe do desafio de hoje!';
+        if (xpElement) xpElement.textContent = `+${challenge.xpReward || 50} XP`;
+        if (timeElement) timeElement.textContent = `⏱️ ${challenge.time || 10} minutos`;
+        
+        if (startBtn) {
+          startBtn.onclick = () => window.location.href = `/pages/argumento.html?challenge=${challengeDoc.id}`;
         }
-    } catch (error) {
-        console.error("Erro ao carregar desafio diário:", error);
+      }
+    } else {
+      console.log("Nenhum desafio diário encontrado para hoje");
     }
+  } catch (error) {
+    console.error("Erro ao carregar desafio diário:", error);
+  }
 }
+
 
 // Retorna as iniciais de um nome
 function getInitials(name) {
