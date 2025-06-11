@@ -272,8 +272,9 @@ function getInitials(name) {
 }
 
 function getRankTitle(level) {
-  if (level < 5) return 'Iniciante';
-  if (level < 10) return 'Debatedor';
-  if (level < 15) return 'Experiente';
-  return 'Mestre';
+    if (level < 5) return 'Novato';
+    if (level < 10) return 'Aprendiz';
+    if (level < 20) return 'Experiente'; // Adicionando mais ranks
+    if (level < 50) return 'Mestre';
+    return 'Lenda';
 }

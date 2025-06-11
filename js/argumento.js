@@ -1,6 +1,5 @@
 // /js/argumento.js
 
-// Imports do Firebase (manter o que ainda usa)
 import {
     auth,
     db,
@@ -28,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONFIGURAÇÃO DE AUTENTICAÇÃO E CARREGAMENTO DE DADOS ---
     // Monitora o estado de autenticação do usuário
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, async (user) => { 
         if (!user) {
             console.log("Usuário não autenticado, redirecionando para login");
             window.location.href = 'login.html'; // Redireciona se o usuário não estiver logado
@@ -58,24 +57,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Referências para o modal de feedback e seus elementos internos
     const modal = document.querySelector('.modal'); // O modal principal que você já tem
-    const btnContinuar = document.getElementById('btnContinuarModal'); // O botão "Continuar" dentro do modal
-    const toastContainer = document.getElementById('toast-container'); // Se você ainda estiver usando um toast
+    const btnContinuar = document.getElementById('btnContinuarModal'); 
+    const toastContainer = document.getElementById('toast-container'); 
 
     // Elementos dentro do modal para exibir o feedback do Gemini
     // geminiDynamicContent engloba loading, error e resultsContent
     const geminiDynamicContent = document.getElementById('geminiDynamicContent');
     const loadingMessage = document.getElementById('loadingMessage');
     const errorMessage = document.getElementById('errorMessage');
-    const resultsContent = document.getElementById('resultsContent'); // O contêiner para os resultados reais (pontuação, listas)
+    const resultsContent = document.getElementById('resultsContent'); 
 
     const resultadoPontuacao = document.getElementById('resultadoPontuacao');
     const resultadoXP = document.getElementById('resultadoXP');
     const listaPontosFortes = document.getElementById('listaPontosFortes');
     const listaPontosFracos = document.getElementById('listaPontosFracos'); // Usado para 'Pontos adicionais a considerar'
     const listaPontosMelhorar = document.getElementById('listaPontosMelhorar'); // Usado para 'Sugestões de melhoria'
-
-    // REMOVIDO: Inicialização da callable function do Firebase Functions
-    // const analyzeArgumentsCallable = httpsCallable(functions, 'analyzeArguments');
 
     // --- 3. LISTENERS DE EVENTOS ---
 
@@ -146,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${await auth.currentUser.getIdToken()}` // Envia o token de autenticação do Firebase para o backend (opcional, mas recomendado para segurança)
+                        'Authorization': `Bearer ${await auth.currentUser.getIdToken()}` 
                     },
                     body: JSON.stringify({ argumentsText: texto })
                 });
@@ -170,8 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Função auxiliar para preencher as listas de feedback
                 const populateList = (ulElement, items) => {
-                    if (!ulElement) return; // Garante que o elemento existe antes de tentar manipulá-lo
-                    ulElement.innerHTML = ''; // Limpa a lista antes de adicionar itens
+                    if (!ulElement) return; 
+                    ulElement.innerHTML = ''; 
                     items.forEach(item => {
                         const li = document.createElement('li');
                         li.textContent = item;
@@ -209,9 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listener para o botão "Continuar" dentro do modal (fecha o modal)
     if (btnContinuar) {
         btnContinuar.addEventListener('click', () => {
-            if (modal) modal.style.display = 'none'; // Fecha o modal
-            // Você pode adicionar aqui qualquer outra lógica que desejar após o usuário fechar o modal
-            // Ex: mostrar um toast de sucesso, redirecionar, etc.
+            if (modal) modal.style.display = 'none'; 
+           
         });
     }
 
@@ -225,8 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // Fim do DOMContentLoaded
-
-// --- FUNÇÕES AUXILIARES (Podem ser movidas para outro arquivo e importadas, se necessário) ---
 
 // Carrega dados do usuário (nome, nível, foto de perfil)
 async function loadUserData(user) {
@@ -273,7 +266,7 @@ async function loadUserData(user) {
 // Carrega o desafio diário
 async function loadDailyChallenge() {
     try {
-        const today = new Date().toISOString().split('T')[0]; // Obtém a data de hoje no formato YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0]; 
         const q = query(
             collection(db, 'dailyChallenges'),
             where('date', '==', today),
@@ -320,7 +313,7 @@ function getInitials(name) {
 function getRankTitle(level) {
     if (level < 5) return 'Novato';
     if (level < 10) return 'Aprendiz';
-    if (level < 20) return 'Experiente'; // Adicionando mais ranks
+    if (level < 20) return 'Experiente'; 
     if (level < 50) return 'Mestre';
     return 'Lenda';
 }

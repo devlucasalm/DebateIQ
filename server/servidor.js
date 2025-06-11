@@ -10,10 +10,9 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = express();
 const PORT = process.env.PORT || 3000; // Define a porta do servidor, usa 3000 por padrão
 
-// Middleware para habilitar CORS (Cross-Origin Resource Sharing)
-// Permite que seu frontend (rodando em outro domínio/porta) acesse este servidor
+
 app.use(cors({
-    origin: '*', // Permite todas as origens. Para produção, substitua '*' pelo domínio do seu frontend (ex: 'http://localhost:8080' ou 'https://seusite.com')
+    origin: '*', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -66,7 +65,6 @@ Argumentos para análise:
 
         let geminiAnalysis;
         try {
-            // O Gemini pode incluir o JSON dentro de um bloco de código Markdown (```json...```)
             const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
             if (jsonMatch && jsonMatch[1]) {
                 geminiAnalysis = JSON.parse(jsonMatch[1]);
@@ -81,6 +79,8 @@ Argumentos para análise:
         }
 
         res.status(200).json(geminiAnalysis);
+        const xp = geminiAnalysis.xp || 0;
+        console.log(`Análise completa. XP concedido: ${xp}`); 
 
     } catch (error) {
         console.error("Erro ao chamar a API do Gemini:", error);
@@ -88,7 +88,6 @@ Argumentos para análise:
     }
 });
 
-// Inicia o servidor
 app.listen(PORT, () => {
     console.log(`Servidor Node.js rodando em http://localhost:${PORT}`);
     console.log(`Para testar, faça um POST para http://localhost:${PORT}/analyze-argument`);
