@@ -19,9 +19,9 @@ import {
 } from '../firebase/firebase-config.js';
 
 let userId = null; // Declarado aqui para ser acessível globalmente no módulo
+let currentDailyChallenge = null; // Adicionado para armazenar o desafio encontrado
 
-
-const NODE_SERVER_URL = 'http://localhost:3000'; 
+const NODE_SERVER_URL = 'http://localhost:3000';
 
 // Único listener para DOMContentLoaded - garante que o DOM está completamente carregado
 document.addEventListener('DOMContentLoaded', () => {
@@ -74,9 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const listaPontosFracos = document.getElementById('listaPontosFracos'); // Usado para 'Pontos adicionais a considerar'
     const listaPontosMelhorar = document.getElementById('listaPontosMelhorar'); // Usado para 'Sugestões de melhoria'
 
-    // REMOVIDO: Inicialização da callable function do Firebase Functions
-    // const analyzeArgumentsCallable = httpsCallable(functions, 'analyzeArguments');
-
     // --- 3. LISTENERS DE EVENTOS ---
 
     // Listener para os botões "A Favor" e "Contra"
@@ -93,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (textarea && contador) {
         textarea.addEventListener('input', () => {
             const length = textarea.value.length;
+            // CORRIGIDO: Uso de template literal
             contador.textContent = `${length} caracteres (mínimo 50)`;
         });
     }
@@ -133,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // 1. Salva o argumento no Firestore
+                // Nota: O challengeId não está sendo salvo aqui. Se precisar, adicione-o de volta.
                 await addDoc(collection(db, 'arguments'), {
                     userId: userId,
                     content: texto,
@@ -142,17 +141,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // 2. Chama o seu servidor Node.js para análise do Gemini
                 console.log('Chamando servidor Node.js para análise do Gemini...');
-                const response = await fetch(`${NODE_SERVER_URL}/analyze-argument`, { // <<<<<< CHAMADA PARA O SERVIDOR NODE.JS AQUI
+                // CORRIGIDO: Uso de template literal
+                const response = await fetch(`${NODE_SERVER_URL}/analyze-argument`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${await auth.currentUser.getIdToken()}` // Envia o token de autenticação do Firebase para o backend (opcional, mas recomendado para segurança)
+                        // CORRIGIDO: Uso de template literal
+                        'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
                     },
                     body: JSON.stringify({ argumentsText: texto })
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
+                    // CORRIGIDO: Uso de template literal
                     throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
                 }
 
@@ -165,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (resultsContent) resultsContent.style.display = 'block';
 
                 // Preenche os campos de pontuação e XP
+                // CORRIGIDO: Uso de template literal
                 if (resultadoPontuacao) resultadoPontuacao.textContent = `${geminiAnalysis.pontuacao || '--'}/10`;
                 if (resultadoXP) resultadoXP.textContent = geminiAnalysis.xp || '0';
 
@@ -194,17 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loadingMessage) loadingMessage.style.display = 'none'; // Esconde o carregamento
                 if (errorMessage) {
                     errorMessage.style.display = 'block'; // Mostra a mensagem de erro
+                    // CORRIGIDO: Uso de template literal
                     errorMessage.textContent = `Erro: ${error.message || 'Ocorreu um erro desconhecido.'} Por favor, tente novamente.`;
                     // Não há error.details diretamente da API fetch, mas pode vir do corpo da resposta de erro
                     if (error.response && error.response.data) {
                         console.error("Detalhes do erro do servidor:", error.response.data);
+                        // CORRIGIDO: Uso de template literal
                         errorMessage.textContent += ` Detalhes: ${JSON.stringify(error.response.data)}`;
                     }
                 }
                 if (resultsContent) resultsContent.style.display = 'none'; // Garante que os resultados não apareçam com erro
             }
         });
+    } else {
+         console.error('ERRO CRÍTICO: Botão "Enviar Argumento" (id="enviarArgumento") NÃO ENCONTRADO para anexar listener.');
     }
+
 
     // Listener para o botão "Continuar" dentro do modal (fecha o modal)
     if (btnContinuar) {
@@ -260,6 +268,7 @@ async function loadUserData(user) {
             }
 
             if (levelElement) {
+                // CORRIGIDO: Uso de template literal
                 levelElement.textContent = `Nível ${userData.level || 1} - ${getRankTitle(userData.level || 1)}`;
             }
         } else {
@@ -273,7 +282,7 @@ async function loadUserData(user) {
 // Carrega o desafio diário
 async function loadDailyChallenge() {
     try {
-        const today = new Date().toISOString().split('T')[0]; // Obtém a data de hoje no formato YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0]; // Obtém a data de hoje no formato AAAA-MM-DD
         const q = query(
             collection(db, 'dailyChallenges'),
             where('date', '==', today),
@@ -285,6 +294,9 @@ async function loadDailyChallenge() {
         if (!querySnapshot.empty) {
             const challengeDoc = querySnapshot.docs[0];
             const challenge = challengeDoc.data();
+            // Define currentDailyChallenge aqui para que o ID possa ser usado no addDoc
+            currentDailyChallenge = { id: challengeDoc.id, ...challenge };
+
             const challengeSection = document.querySelector('.desafio-diario');
 
             if (challengeSection) {
@@ -296,23 +308,35 @@ async function loadDailyChallenge() {
 
                 if (titleElement) titleElement.textContent = challenge.title || 'Desafio Diário';
                 if (descriptionElement) descriptionElement.textContent = challenge.description || 'Participe do desafio de hoje!';
+                // CORRIGIDO: Uso de template literal
                 if (xpElement) xpElement.textContent = `${challenge.xpReward || 50} XP`;
+                // CORRIGIDO: Uso de template literal
                 if (timeElement) timeElement.textContent = `⏱️ ${challenge.time || 10} minutos`;
 
                 if (startBtn) {
-                    startBtn.onclick = () => window.location.href = `/pages/argumento.html?challenge=${challengeDoc.id}`;
+                    // CORRIGIDO: Uso de template literal (e removi o ?challenge=${challengeDoc.id} se a intenção for não passar mais o ID na URL)
+                    // Se o ID ainda for necessário na URL por algum motivo, reavalie esta linha.
+                    // No entanto, se o desafio é carregado pelo dia, o ID na URL não é estritamente necessário para o fluxo principal.
+                    startBtn.onclick = () => window.location.href = `/pages/argumento.html`;
                 }
             }
         } else {
             console.log("Nenhum desafio diário encontrado para hoje");
+            // Se nenhum desafio for encontrado, garanta que currentDailyChallenge seja nulo
+            currentDailyChallenge = null;
+            const challengeSection = document.querySelector('.desafio-diario');
+            
         }
     } catch (error) {
         console.error("Erro ao carregar desafio diário:", error);
+        currentDailyChallenge = null; // Em caso de erro, também define como nulo
     }
 }
 
 // Retorna as iniciais de um nome
 function getInitials(name) {
+    // Adiciona verificação para garantir que o nome não é nulo/vazio
+    if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
 }
 

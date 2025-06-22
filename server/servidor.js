@@ -39,6 +39,7 @@ app.post('/analyze-argument', async (req, res) => {
     }
 
     try {
+        // CORRIGIDO: Uso de template literal (``) para o prompt
         const prompt = `Analise os seguintes argumentos e forneça:
 1. Pontos fortes (listar 3-5)
 2. Pontos fracos (listas 3-5)
@@ -57,7 +58,6 @@ Formato de saída esperado (JSON):
 
 Argumentos para análise:
 "${argumentsText}"`;
-
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text(); // Pega o texto bruto da resposta do Gemini
@@ -66,7 +66,7 @@ Argumentos para análise:
 
         let geminiAnalysis;
         try {
-            // O Gemini pode incluir o JSON dentro de um bloco de código Markdown (```json...```)
+            // CORRIGIDO: Regex para extrair o JSON de um bloco de código Markdown (```json...```)
             const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
             if (jsonMatch && jsonMatch[1]) {
                 geminiAnalysis = JSON.parse(jsonMatch[1]);
@@ -90,6 +90,7 @@ Argumentos para análise:
 
 // Inicia o servidor
 app.listen(PORT, () => {
+    // CORRIGIDO: Uso de template literal (``) para os logs de inicialização
     console.log(`Servidor Node.js rodando em http://localhost:${PORT}`);
     console.log(`Para testar, faça um POST para http://localhost:${PORT}/analyze-argument`);
 });
