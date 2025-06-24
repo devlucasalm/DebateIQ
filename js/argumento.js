@@ -161,6 +161,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const geminiAnalysis = await response.json(); // Os dados retornados pelo seu servidor Node.js
 
                 console.log('Análise do Gemini recebida:', geminiAnalysis);
+                try {
+                    const xp = geminiAnalysis.xp || 0;
+
+                    const xpSaveResponse = await fetch(`${NODE_SERVER_URL}/save-xp`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                        },
+                        body: JSON.stringify({
+                            userId,
+                            xp
+                        })
+                    });
+
+                    const xpSaveResult = await xpSaveResponse.json();
+                    console.log('XP salvo no backend:', xpSaveResult.message || xpSaveResult);
+                } catch (xpError) {
+                    console.error('Erro ao salvar XP no backend:', xpError);
+                }
 
                 // Ocultar mensagem de carregamento e exibir os resultados
                 if (loadingMessage) loadingMessage.style.display = 'none';
@@ -210,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     } else {
-         console.error('ERRO CRÍTICO: Botão "Enviar Argumento" (id="enviarArgumento") NÃO ENCONTRADO para anexar listener.');
+        console.error('ERRO CRÍTICO: Botão "Enviar Argumento" (id="enviarArgumento") NÃO ENCONTRADO para anexar listener.');
     }
 
 
@@ -325,7 +345,7 @@ async function loadDailyChallenge() {
             // Se nenhum desafio for encontrado, garanta que currentDailyChallenge seja nulo
             currentDailyChallenge = null;
             const challengeSection = document.querySelector('.desafio-diario');
-            
+
         }
     } catch (error) {
         console.error("Erro ao carregar desafio diário:", error);
@@ -342,9 +362,8 @@ function getInitials(name) {
 
 // Retorna o título do rank com base no nível
 function getRankTitle(level) {
-    if (level < 5) return 'Novato';
-    if (level < 10) return 'Aprendiz';
-    if (level < 20) return 'Experiente'; // Adicionando mais ranks
-    if (level < 50) return 'Mestre';
-    return 'Lenda';
+  if (level < 5) return 'Iniciante';
+  if (level < 10) return 'Debatedor';
+  if (level < 15) return 'Experiente';
+  return 'Mestre';
 }

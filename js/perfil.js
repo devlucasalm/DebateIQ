@@ -1,5 +1,33 @@
 import { auth, onAuthStateChanged, db, doc, getDoc } from '../firebase/firebase-config.js';
 
+function formatMemberSinceDate(timestamp) {
+    if (!timestamp) {
+        return 'Janeiro 2023'; 
+    }
+
+    let date;
+
+    if (typeof timestamp.toDate === 'function') { 
+        date = timestamp.toDate();
+    } else if (typeof timestamp.seconds === 'number') { 
+        date = new Date(timestamp.seconds * 1000); 
+    } else { 
+        try {
+            date = new Date(timestamp);
+            if (isNaN(date.getTime())) {
+                 console.warn("Formato de data string inesperado para createdAt:", timestamp);
+                return 'Data Indisponível';
+            }
+        } catch (e) {
+             console.warn("Erro ao converter formato de data inesperado:", timestamp, e);
+            return 'Data Indisponível';
+        }
+    }
+
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return date.toLocaleDateString('pt-BR', options);
+}
+
 // Função para pegar as iniciais do nome
 function getInitials(name) {
   return name
@@ -47,7 +75,7 @@ onAuthStateChanged(auth, async (user) => {
 
     // Nome e nível no header
     profileNameHeader.textContent = userData.displayName || 'Debatedor Exemplar';
-    profileLevelHeader.textContent = `Nível ${userData.level || 1} - Debatedor`;
+    profileLevelHeader.textContent = `Nível ${userData.rank || 1} - Debatedor`;
 
     // Atualiza logo do container do perfil
     if (userData.photoURL) {
@@ -71,7 +99,7 @@ onAuthStateChanged(auth, async (user) => {
 
     // Nome e membro desde
     containerProfileName.textContent = userData.displayName || 'Debatedor Exemplar';
-    containerMemberSince.textContent = `Membro desde ${userData.memberSince || 'Janeiro 2023'}`;
+containerMemberSince.textContent = `Membro desde ${formatMemberSinceDate(userData.createdAt)}`;    
 
     // Atualiza sequência, XP e nível
     const stricksP = document.querySelectorAll('.stricks-perfil .stricks-sub p');
@@ -98,3 +126,13 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = '/pages/login.html';
   }
 });
+
+
+
+function getRankTitle(level) {
+  if (level < 5) return 'Iniciante';
+  if (level < 10) return 'Debatedor';
+  if (level < 15) return 'Experiente';
+  return 'Mestre';
+}
+

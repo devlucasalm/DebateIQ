@@ -277,3 +277,4 @@ function getRankTitle(level) {
   if (level < 15) return 'Experiente';
   return 'Mestre';
 }
+

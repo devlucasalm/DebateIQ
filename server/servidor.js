@@ -10,6 +10,15 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = express();
 const PORT = process.env.PORT || 3000; // Define a porta do servidor, usa 3000 por padrão
 
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json.json');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore(); // Agora você pode usar db.collection(...) etc.
+
 // Middleware para habilitar CORS (Cross-Origin Resource Sharing)
 // Permite que seu frontend (rodando em outro domínio/porta) acesse este servidor
 app.use(cors({
@@ -40,12 +49,19 @@ app.post('/analyze-argument', async (req, res) => {
 
     try {
         // CORRIGIDO: Uso de template literal (``) para o prompt
-        const prompt = `Analise os seguintes argumentos e forneça:
-1. Pontos fortes (listar 3-5)
-2. Pontos fracos (listas 3-5)
-3. Pontos a melhorar (listar 3-5)
-4. Uma pontuação de 0 a 10 (apenas o número)
-5. Um valor de XP (apenas o número, entre 50 e 500)
+        const prompt = `Analise os seguintes argumentos e forneça uma avaliação detalhada baseada em:
+1.  **Clareza e Coerência:** Quão fácil é entender o argumento e suas conexões lógicas.
+2.  **Relevância:** O quanto o argumento se mantém focado no tópico e na questão central.
+3.  **Poder de Persuasão:** A capacidade do argumento de convencer o leitor, mesmo sem dados externos.
+4.  **Profundidade:** O nível de desenvolvimento das ideias e a exploração do tema.
+
+Com base nesta análise, forneça:
+
+1. Pontos fortes (listar 3-4)
+2. Pontos fracos (listas 2-4)
+3. Pontos a melhorar (listar 2-4)
+4. Uma pontuação de 0 a 10 (apenas o número), **onde 0 indica um argumento ineficaz e 10 indica um argumento excepcionalmente bem construído, claro e persuasivo.**
+5. Um valor de XP (apenas o número, entre 50 e 500) **que deve ser diretamente proporcional à pontuação. Argumentos com pontuações mais altas devem receber significativamente mais XP.**
 
 Formato de saída esperado (JSON):
 {
@@ -87,6 +103,31 @@ Argumentos para análise:
         res.status(500).json({ message: "Erro ao analisar o argumento. Tente novamente mais tarde.", error: error.message });
     }
 });
+
+// Nova rota para salvar XP do usuário no Firestore
+app.post('/save-xp', async (req, res) => {
+  const { userId, xp } = req.body;
+
+  if (!userId || typeof xp !== 'number') {
+    return res.status(400).json({ message: "Parâmetros inválidos. Esperado: userId e xp (número)." });
+  }
+
+  try {
+    const userRef = db.collection('users').doc(userId);
+
+    // Incrementa o campo 'xp' no documento do usuário
+    await userRef.set({
+      xp: admin.firestore.FieldValue.increment(xp)
+    }, { merge: true });
+
+    res.status(200).json({ message: "XP salvo com sucesso!" });
+
+  } catch (error) {
+    console.error("Erro ao salvar XP:", error);
+    res.status(500).json({ message: "Erro ao salvar XP.", error: error.message });
+  }
+});
+
 
 // Inicia o servidor
 app.listen(PORT, () => {
