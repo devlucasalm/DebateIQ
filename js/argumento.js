@@ -21,7 +21,7 @@ import {
 let userId = null; // Declarado aqui para ser acessível globalmente no módulo
 let currentDailyChallenge = null; // Adicionado para armazenar o desafio encontrado
 
-const NODE_SERVER_URL = 'http://localhost:3000';
+const NODE_SERVER_URL = 'https://debateiq-backend.onrender.com';
 
 // Único listener para DOMContentLoaded - garante que o DOM está completamente carregado
 document.addEventListener('DOMContentLoaded', () => {
