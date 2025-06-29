@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Carrega os dados do usuário e o desafio diário após autenticação
             await loadUserData(user);
-            await loadDailyChallenge();
+          //  await loadDailyChallenge();
         } catch (error) {
             console.error("Erro ao carregar dados da dashboard em argumento.html:", error);
         }
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // CORRIGIDO: Uso de template literal
                         'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
                     },
-                    body: JSON.stringify({ argumentsText: texto })
+                    body: JSON.stringify({ argumentsText: texto, userId })
                 });
 
                 if (!response.ok) {
@@ -161,6 +161,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const geminiAnalysis = await response.json(); // Os dados retornados pelo seu servidor Node.js
 
                 console.log('Análise do Gemini recebida:', geminiAnalysis);
+                try {
+                    const argumentosRef = collection(db, 'arguments');
+
+                    // Busca o último argumento adicionado pelo usuário
+                    const q = query(argumentosRef, where('userId', '==', userId), orderBy('createdAt', 'desc'), limit(1));
+                    const snapshot = await getDocs(q);
+
+                    if (!snapshot.empty) {
+                        const docRef = snapshot.docs[0].ref;
+                        await updateDoc(docRef, {
+                            xp: geminiAnalysis.xp || 0,
+                            pontuacao: geminiAnalysis.pontuacao || 0
+                        });
+                        console.log('Documento atualizado com XP e pontuação.');
+                    } else {
+                        console.warn('Nenhum argumento encontrado para atualizar.');
+                    }
+                } catch (updateError) {
+                    console.error('Erro ao atualizar argumento com XP/pontuação:', updateError);
+                }
+
                 try {
                     const xp = geminiAnalysis.xp || 0;
 
@@ -178,6 +199,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const xpSaveResult = await xpSaveResponse.json();
                     console.log('XP salvo no backend:', xpSaveResult.message || xpSaveResult);
+
+                    try {
+                        const completeChallengeResponse = await fetch(`${NODE_SERVER_URL}/complete-challenge`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                            },
+                            body: JSON.stringify({ userId })
+                        });
+
+                        const completeResult = await completeChallengeResponse.json();
+                        console.log('Desafio marcado como concluído:', completeResult.message || completeResult);
+                    } catch (challengeError) {
+                        console.error('Erro ao marcar desafio como concluído:', challengeError);
+                    }
                 } catch (xpError) {
                     console.error('Erro ao salvar XP no backend:', xpError);
                 }
@@ -253,9 +290,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 }); // Fim do DOMContentLoaded
+let lastChallengeDate = null;
 
 // --- FUNÇÕES AUXILIARES (Podem ser movidas para outro arquivo e importadas, se necessário) ---
-
 // Carrega dados do usuário (nome, nível, foto de perfil)
 async function loadUserData(user) {
     try {
@@ -288,9 +325,27 @@ async function loadUserData(user) {
             }
 
             if (levelElement) {
-                // CORRIGIDO: Uso de template literal
-                levelElement.textContent = `Nível ${userData.level || 1} - ${getRankTitle(userData.level || 1)}`;
+                const level = getLevelFromXP(userData.xp || 0);
+                levelElement.textContent = `Nível ${level} - ${getRankTitle(level)}`;
             }
+
+            const today = new Date().toISOString().split('T')[0];
+            const botaoEnviar = document.getElementById('enviarArgumento');
+            if (botaoEnviar) {
+                if (lastChallengeDate === today) {
+                    botaoEnviar.disabled = true;
+                    botaoEnviar.textContent = 'Desafio de hoje já concluído ✅';
+                    // Opcional: estilizar botão desabilitado para ficar mais visível
+                    botaoEnviar.style.backgroundColor = '#999';
+                    botaoEnviar.style.cursor = 'not-allowed';
+                } else {
+                    botaoEnviar.disabled = false;
+                    botaoEnviar.textContent = 'Enviar Argumento';
+                    botaoEnviar.style.backgroundColor = ''; // reseta estilos se quiser
+                    botaoEnviar.style.cursor = 'pointer';
+                }
+            }
+
         } else {
             console.warn("Dados do usuário não encontrados no Firestore");
         }
@@ -361,9 +416,33 @@ function getInitials(name) {
 }
 
 // Retorna o título do rank com base no nível
-function getRankTitle(level) {
-  if (level < 5) return 'Iniciante';
-  if (level < 10) return 'Debatedor';
-  if (level < 15) return 'Experiente';
-  return 'Mestre';
+function getLevelFromXP(xp) {
+    if (xp < 100) return 1;
+    if (xp < 300) return 2;
+    if (xp < 600) return 3;
+    if (xp < 1000) return 4;
+    if (xp < 1500) return 5;
+    if (xp < 2100) return 6;
+    if (xp < 2800) return 7;
+    if (xp < 3600) return 8;
+    if (xp < 4500) return 9;
+    if (xp < 5500) return 10;
+    if (xp < 6600) return 11;
+    if (xp < 7800) return 12;
+    if (xp < 9100) return 13;
+    if (xp < 10500) return 14;
+    if (xp < 12000) return 15;
+    if (xp < 13600) return 16;
+    if (xp < 15300) return 17;
+    if (xp < 17100) return 18;
+    if (xp < 19000) return 19;
+    return 40;
 }
+
+function getRankTitle(level) {
+    if (level < 10) return 'Iniciante';
+    if (level < 15) return 'Debatedor';
+    if (level < 20) return 'Experiente';
+    return 'Mestre';
+}
+

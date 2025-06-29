@@ -14,7 +14,7 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json.json');
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount)
 });
 
 const db = admin.firestore(); // Agora você pode usar db.collection(...) etc.
@@ -38,10 +38,13 @@ if (!geminiApiKey) {
     process.exit(1); // Encerra o processo se a chave não estiver configurada
 }
 const genAI = new GoogleGenerativeAI(geminiApiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); 
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+
+
 // Rota para analisar argumentos com a API do Gemini
 app.post('/analyze-argument', async (req, res) => {
-    const { argumentsText } = req.body;
+    const { argumentsText, userId } = req.body;
 
     if (!argumentsText || argumentsText.length < 50) {
         return res.status(400).json({ message: "Texto do argumento inválido ou muito curto (mínimo 50 caracteres)." });
@@ -57,9 +60,9 @@ app.post('/analyze-argument', async (req, res) => {
 
 Com base nesta análise, forneça:
 
-1. Pontos fortes (listar 3-4)
-2. Pontos fracos (listas 2-4)
-3. Pontos a melhorar (listar 2-4)
+1. Pontos fortes (listar 2-3)
+2. Pontos fracos (listas 2-3)
+3. Pontos a melhorar (listar 2-3)
 4. Uma pontuação de 0 a 10 (apenas o número), **onde 0 indica um argumento ineficaz e 10 indica um argumento excepcionalmente bem construído, claro e persuasivo.**
 5. Um valor de XP (apenas o número, entre 50 e 500) **que deve ser diretamente proporcional à pontuação. Argumentos com pontuações mais altas devem receber significativamente mais XP.**
 
@@ -96,6 +99,31 @@ Argumentos para análise:
             return res.status(500).json({ message: "Erro interno: Resposta do Gemini em formato inválido." });
         }
 
+        if ((geminiAnalysis.xp || 0) > 320 && userId) {
+            try {
+                const userDocRef = db.collection('users').doc(userId);
+                const userDocSnap = await userDocRef.get();
+
+                let displayName = 'Anônimo';
+                if (userDocSnap.exists) {
+                    const userData = userDocSnap.data();
+                    displayName = userData.displayName || 'Anônimo';
+                }
+
+                await db.collection('communityArgument').add({
+                    userId,
+                    autor: displayName,
+                    content: argumentsText,
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    pontuacao: geminiAnalysis.pontuacao || 0,
+                    xp: geminiAnalysis.xp || 0
+                });
+                console.log("Argumento com mais de 200 XP salvo em 'communityArgument'.");
+            } catch (err) {
+                console.error("Erro ao salvar em 'communityArgument':", err);
+            }
+        }
+
         res.status(200).json(geminiAnalysis);
 
     } catch (error) {
@@ -106,32 +134,58 @@ Argumentos para análise:
 
 // Nova rota para salvar XP do usuário no Firestore
 app.post('/save-xp', async (req, res) => {
-  const { userId, xp } = req.body;
+    const { userId, xp } = req.body;
 
-  if (!userId || typeof xp !== 'number') {
-    return res.status(400).json({ message: "Parâmetros inválidos. Esperado: userId e xp (número)." });
+    if (!userId || typeof xp !== 'number') {
+        return res.status(400).json({ message: "Parâmetros inválidos. Esperado: userId e xp (número)." });
+    }
+
+    try {
+        const userRef = db.collection('users').doc(userId);
+
+        // Incrementa o campo 'xp' no documento do usuário
+        await userRef.set({
+            xp: admin.firestore.FieldValue.increment(xp)
+        }, { merge: true });
+
+        res.status(200).json({ message: "XP salvo com sucesso!" });
+
+    } catch (error) {
+        console.error("Erro ao salvar XP:", error);
+        res.status(500).json({ message: "Erro ao salvar XP.", error: error.message });
+    }
+});
+
+
+
+app.post('/complete-challenge', async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: "O ID do usuário (userId) é obrigatório." });
   }
 
   try {
     const userRef = db.collection('users').doc(userId);
+    const today = new Date().toISOString().split('T')[0];
 
-    // Incrementa o campo 'xp' no documento do usuário
     await userRef.set({
-      xp: admin.firestore.FieldValue.increment(xp)
+      completedChallenges: admin.firestore.FieldValue.increment(1),
+      lastChallengeDate: today,  // salva a data do último desafio concluído
     }, { merge: true });
 
-    res.status(200).json({ message: "XP salvo com sucesso!" });
+    console.log(`'completedChallenges' incrementado e lastChallengeDate atualizado para o usuário ${userId}`);
+    res.status(200).json({ message: "Progresso atualizado com sucesso!" });
 
   } catch (error) {
-    console.error("Erro ao salvar XP:", error);
-    res.status(500).json({ message: "Erro ao salvar XP.", error: error.message });
+    console.error("Erro ao incrementar completedChallenges:", error);
+    res.status(500).json({ message: "Erro ao atualizar progresso.", error: error.message });
   }
 });
 
 
 // Inicia o servidor
 app.listen(PORT, () => {
-    // CORRIGIDO: Uso de template literal (``) para os logs de inicialização
     console.log(`Servidor Node.js rodando em http://localhost:${PORT}`);
     console.log(`Para testar, faça um POST para http://localhost:${PORT}/analyze-argument`);
 });
