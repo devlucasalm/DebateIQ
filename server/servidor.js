@@ -19,7 +19,6 @@ admin.initializeApp({
 
 const db = admin.firestore(); // Agora você pode usar db.collection(...) etc.
 
-// Middleware para habilitar CORS (Cross-Origin Resource Sharing)
 // Permite que seu frontend (rodando em outro domínio/porta) acesse este servidor
 app.use(cors({
     origin: '*', // Permite todas as origens. Para produção, substitua '*' pelo domínio do seu frontend (ex: 'http://localhost:8080' ou 'https://seusite.com')

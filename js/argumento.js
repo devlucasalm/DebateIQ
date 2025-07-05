@@ -140,8 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Argumento salvo no Firestore.');
 
                 // 2. Chama o seu servidor Node.js para análise do Gemini
-                console.log('Chamando servidor Node.js para análise do Gemini...');
-                // CORRIGIDO: Uso de template literal
                 const response = await fetch(`${NODE_SERVER_URL}/analyze-argument`, {
                     method: 'POST',
                     headers: {
@@ -160,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const geminiAnalysis = await response.json(); // Os dados retornados pelo seu servidor Node.js
 
-                console.log('Análise do Gemini recebida:', geminiAnalysis);
                 try {
                     const argumentosRef = collection(db, 'arguments');
 

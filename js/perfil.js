@@ -182,7 +182,7 @@ onAuthStateChanged(auth, async (user) => {
 
   // Média do Gemini
   const mediaGemini = await calcularMediaPontuacaoDoUsuario(uid);
-  estatisticas[4].textContent = `${mediaGemini}`;
+  estatisticas[4].textContent = `${mediaGemini}%`;
 
   // Progresso tópico
   const progressoTopico = document.querySelector('.minicontainer-topicos .completos span');
