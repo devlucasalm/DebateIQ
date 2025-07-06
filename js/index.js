@@ -11,6 +11,7 @@ import {
   limit,
   updateDoc,
   onAuthStateChanged,
+  getRedirectResult,
 } from '../firebase/firebase-config.js';
 
 import { increment } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
@@ -18,10 +19,12 @@ import { increment } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-f
 // Carrega dados quando a página estiver pronta
 document.addEventListener('DOMContentLoaded', () => {
   // Usa onAuthStateChanged em vez de auth.currentUser diretamente
+
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       console.log("Usuário não autenticado, redirecionando para login");
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
       return;
     }
 

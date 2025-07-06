@@ -3,6 +3,8 @@ import {
   provider, 
   signInWithPopup,
   onAuthStateChanged,
+  signInWithRedirect,
+  getRedirectResult,
   db,
   doc, 
   getDoc, 
@@ -11,57 +13,69 @@ import {
   serverTimestamp 
 } from "../firebase/firebase-config.js";
 
-// Espera até que o DOM esteja carregado completamente
-document.addEventListener('DOMContentLoaded', () => {
+// Detecta se o navegador é Safari
+function isSafari() {
+  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
   const googleLoginBtn = document.getElementById("google-login");
   
-  if (googleLoginBtn) {
-    googleLoginBtn.addEventListener("click", handleGoogleLogin);
-  } else {
+  if (!googleLoginBtn) {
     console.error("Elemento 'google-login' não encontrado no DOM");
+    return;
   }
-});
-
-// Função separada para lidar com o login do Google
-async function handleGoogleLogin(e) {
-  e.preventDefault();
   
+  // Primeiro, tenta obter resultado pendente do redirect (caso tenha usado redirect)
   try {
-    // Use signInWithRedirect em vez de signInWithPopup para evitar problemas de COOP
-    // Alternativa 1: Use redirecionamento em vez de popup
-    // await signInWithRedirect(auth, provider);
-    
-    // Alternativa 2: Continue usando popup mas com tratamento adequado
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    
-    console.log("Usuário autenticado:", user);
-    
-    if (user) {
-      // Processa os dados do usuário no Firestore antes de redirecionar
-      await handleUserData(user);
-      
-      // Use location.replace para melhor navegação (não adiciona à história)
+    const result = await getRedirectResult(auth);
+    if (result && result.user) {
+      console.log("Usuário autenticado via redirect:", result.user);
+      await handleUserData(result.user);
       window.location.replace("home.html");
-    } else {
-      throw new Error("Autenticação falhou - usuário não retornado");
+      return;
     }
   } catch (error) {
-    console.error("Erro na autenticação:", {
-      code: error.code || 'desconhecido',
-      message: error.message || 'Erro desconhecido',
-      email: error.customData?.email,
-      credential: error.credential
-    });
-    
-    // Tratamento específico para erro COOP
-    if (error.message && error.message.includes('Cross-Origin-Opener-Policy')) {
-      alert("Erro de segurança do navegador. Tente novamente ou use outro navegador.");
-    } else {
-      alert(`Falha no login: ${error.message || 'Erro desconhecido'}`);
-    }
+    console.error("Erro ao obter resultado do redirect:", error);
   }
-}
+  
+  // Se chegou aqui, usuário não logado via redirect pendente
+  
+  googleLoginBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    try {
+      let userCredential;
+
+      if (isSafari()) {
+        // Safari usa redirect (mais confiável)
+        await signInWithRedirect(auth, provider);
+      } else {
+        // Outros navegadores usam popup (mais rápido)
+        userCredential = await signInWithPopup(auth, provider);
+        
+        if (userCredential && userCredential.user) {
+          console.log("Usuário autenticado via popup:", userCredential.user);
+          await handleUserData(userCredential.user);
+          window.location.replace("home.html");
+        }
+      }
+    } catch (error) {
+      console.error("Erro na autenticação:", {
+        code: error.code || 'desconhecido',
+        message: error.message || 'Erro desconhecido',
+        email: error.customData?.email,
+        credential: error.credential
+      });
+      
+      if (error.message && error.message.includes('Cross-Origin-Opener-Policy')) {
+        alert("Erro de segurança do navegador. Tente novamente ou use outro navegador.");
+      } else {
+        alert(`Falha no login: ${error.message || 'Erro desconhecido'}`);
+      }
+    }
+  });
+});
 
 // Função para gerenciar os dados do usuário no Firestore
 async function handleUserData(user) {
@@ -83,7 +97,6 @@ async function handleUserData(user) {
     };
 
     if (!userSnap.exists()) {
-      // Novo usuário - cria documento com dados adicionais
       await setDoc(userRef, {
         ...userData,
         createdAt: serverTimestamp(),
@@ -95,12 +108,10 @@ async function handleUserData(user) {
       });
       console.log("Novo usuário registrado no Firestore");
     } else {
-      // Usuário existente - apenas atualiza dados
       await updateDoc(userRef, userData);
       console.log("Usuário atualizado no Firestore");
     }
   } catch (firestoreError) {
     console.error("Erro ao processar dados do usuário no Firestore:", firestoreError);
-    // Não lançamos o erro novamente para permitir que o login continue
   }
 }
