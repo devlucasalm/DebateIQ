@@ -138,7 +138,7 @@ async function loadDailyChallenge() {
       }
     } else {
       console.log("Nenhum desafio diário encontrado para hoje");
-      // Opcional: mostrar mensagem para usuário que não há desafio hoje
+      // mostrar mensagem para usuário que não há desafio hoje
     }
   } catch (error) {
     console.error("Erro ao carregar desafio diário:", error);

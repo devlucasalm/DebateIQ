@@ -17,11 +17,11 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 });
 
-const db = admin.firestore(); // Agora você pode usar db.collection(...) etc.
+const db = admin.firestore(); 
 
 // Permite que seu frontend (rodando em outro domínio/porta) acesse este servidor
 app.use(cors({
-    origin: '*', // Permite todas as origens. Para produção, substitua '*' pelo domínio do seu frontend (ex: 'http://localhost:8080' ou 'https://seusite.com')
+    origin: '*', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -50,7 +50,6 @@ app.post('/analyze-argument', async (req, res) => {
     }
 
     try {
-        // CORRIGIDO: Uso de template literal (``) para o prompt
         const prompt = `Analise os seguintes argumentos e forneça uma avaliação detalhada baseada em:
 1.  **Clareza e Coerência:** Quão fácil é entender o argumento e suas conexões lógicas.
 2.  **Relevância:** O quanto o argumento se mantém focado no tópico e na questão central.
@@ -84,7 +83,6 @@ Argumentos para análise:
 
         let geminiAnalysis;
         try {
-            // CORRIGIDO: Regex para extrair o JSON de um bloco de código Markdown (```json...```)
             const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/);
             if (jsonMatch && jsonMatch[1]) {
                 geminiAnalysis = JSON.parse(jsonMatch[1]);

@@ -131,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 // 1. Salva o argumento no Firestore
-                // Nota: O challengeId não está sendo salvo aqui. Se precisar, adicione-o de volta.
                 await addDoc(collection(db, 'arguments'), {
                     userId: userId,
                     content: texto,
@@ -144,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        // CORRIGIDO: Uso de template literal
                         'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
                     },
                     body: JSON.stringify({ argumentsText: texto, userId })
@@ -152,11 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    // CORRIGIDO: Uso de template literal
                     throw new Error(errorData.message || `Erro HTTP: ${response.status}`);
                 }
 
-                const geminiAnalysis = await response.json(); // Os dados retornados pelo seu servidor Node.js
+                const geminiAnalysis = await response.json(); // Os dados retornados pelo servidor Node.js
 
                 try {
                     const argumentosRef = collection(db, 'arguments');
@@ -221,7 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (resultsContent) resultsContent.style.display = 'block';
 
                 // Preenche os campos de pontuação e XP
-                // CORRIGIDO: Uso de template literal
                 if (resultadoPontuacao) resultadoPontuacao.textContent = `${geminiAnalysis.pontuacao || '--'}/10`;
                 if (resultadoXP) resultadoXP.textContent = geminiAnalysis.xp || '0';
 
@@ -251,12 +247,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loadingMessage) loadingMessage.style.display = 'none'; // Esconde o carregamento
                 if (errorMessage) {
                     errorMessage.style.display = 'block'; // Mostra a mensagem de erro
-                    // CORRIGIDO: Uso de template literal
                     errorMessage.textContent = `Erro: ${error.message || 'Ocorreu um erro desconhecido.'} Por favor, tente novamente.`;
                     // Não há error.details diretamente da API fetch, mas pode vir do corpo da resposta de erro
                     if (error.response && error.response.data) {
                         console.error("Detalhes do erro do servidor:", error.response.data);
-                        // CORRIGIDO: Uso de template literal
                         errorMessage.textContent += ` Detalhes: ${JSON.stringify(error.response.data)}`;
                     }
                 }
@@ -272,8 +266,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnContinuar) {
         btnContinuar.addEventListener('click', () => {
             if (modal) modal.style.display = 'none'; // Fecha o modal
-            // Você pode adicionar aqui qualquer outra lógica que desejar após o usuário fechar o modal
-            // Ex: mostrar um toast de sucesso, redirecionar, etc.
         });
     }
 
@@ -289,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
 }); // Fim do DOMContentLoaded
 let lastChallengeDate = null;
 
-// --- FUNÇÕES AUXILIARES (Podem ser movidas para outro arquivo e importadas, se necessário) ---
 // Carrega dados do usuário (nome, nível, foto de perfil)
 async function loadUserData(user) {
     try {
@@ -332,13 +323,12 @@ async function loadUserData(user) {
                 if (lastChallengeDate === today) {
                     botaoEnviar.disabled = true;
                     botaoEnviar.textContent = 'Desafio de hoje já concluído ✅';
-                    // Opcional: estilizar botão desabilitado para ficar mais visível
                     botaoEnviar.style.backgroundColor = '#999';
                     botaoEnviar.style.cursor = 'not-allowed';
                 } else {
                     botaoEnviar.disabled = false;
                     botaoEnviar.textContent = 'Enviar Argumento';
-                    botaoEnviar.style.backgroundColor = ''; // reseta estilos se quiser
+                    botaoEnviar.style.backgroundColor = ''; 
                     botaoEnviar.style.cursor = 'pointer';
                 }
             }
@@ -380,15 +370,11 @@ async function loadDailyChallenge() {
 
                 if (titleElement) titleElement.textContent = challenge.title || 'Desafio Diário';
                 if (descriptionElement) descriptionElement.textContent = challenge.description || 'Participe do desafio de hoje!';
-                // CORRIGIDO: Uso de template literal
                 if (xpElement) xpElement.textContent = `${challenge.xpReward || 50} XP`;
                 // CORRIGIDO: Uso de template literal
                 if (timeElement) timeElement.textContent = `⏱️ ${challenge.time || 10} minutos`;
 
                 if (startBtn) {
-                    // CORRIGIDO: Uso de template literal (e removi o ?challenge=${challengeDoc.id} se a intenção for não passar mais o ID na URL)
-                    // Se o ID ainda for necessário na URL por algum motivo, reavalie esta linha.
-                    // No entanto, se o desafio é carregado pelo dia, o ID na URL não é estritamente necessário para o fluxo principal.
                     startBtn.onclick = () => window.location.href = `/pages/argumento.html`;
                 }
             }
